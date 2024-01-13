@@ -1,6 +1,7 @@
+import time
+
 import pygame
 import random
-
 
 
 pygame.init()
@@ -19,7 +20,9 @@ img3 = pygame.image.load('pct/4.jpg')
 img4 = pygame.image.load('pct/html.png')
 img5 = pygame.image.load('pct/images.jpg')
 kirp = pygame.image.load('pct/loft-krasnyy.jpg')
-kirp = pygame.transform.scale(kirp, (200,200))
+bullet = pygame.image.load('pct/png-clipart-bullets-bullets.png')
+
+kirp = pygame.transform.scale(kirp, (200, 200))
 
 kirp2 = kirp
 kirp3 = kirp
@@ -29,7 +32,10 @@ fon_mus = pygame.mixer.Sound('sounds/9a49e1c170bd8c1.mp3')
 img = pygame.transform.scale(img, (100, 100))
 img3 = pygame.transform.scale(img3, (10000, 10000))
 img4 = pygame.transform.scale(img4, (150, 150))
-img5 = pygame.transform.scale(img5, (200, 200))
+img5 = pygame.transform.scale(img5, (300, 300))
+bullet = pygame.transform.scale(bullet, (175, 50))
+
+score = 0
 
 x_k = 100
 y_k = 100
@@ -42,6 +48,8 @@ y = 0
 
 lev_speed = 1.5
 en_speed = 0.5
+
+bul_timer = 0
 
 
 def player():
@@ -65,9 +73,12 @@ def player():
 
 
 def player2():
+    global bul_timer
     global x_e
     global y_e
     global en_speed
+    mouse_en_pr = pygame.mouse.get_pressed()  # Нужно доделать
+    mouse_en_pos = pygame.mouse.get_pos()
     keys_en = pygame.key.get_pressed()
     if keys_en[pygame.K_UP]:
         y_e -= en_speed
@@ -80,12 +91,26 @@ def player2():
 
     if keys_en[pygame.K_DOWN]:
         y_e += en_speed
+    if keys_en[pygame.K_SPACE]:
+        screen.blit(bullet, (x, y+25))
     screen.blit(img4, (x_e, y_e))
 
 
+def en():  # Нужно доделать
+    global y_e
+    global score
+    while True:
+        if score == 0:
+            y_e += 1
+            score += 1
+        if score >= 1000:
+            y_e -= 1
+            score -= 1
 def touch():
-    if x-100 < x_e < x and y-100 < y_e < y+100:
-        screen.blit(img5, (x, y))
+    if x-150 < x_e < x+100 and y-150 < y_e < y+100:
+        screen.blit(img5, (x-100, y-100))
+        time.sleep(1)
+        exit()
 
 
 def touch_kirp():
@@ -117,11 +142,6 @@ while True:
 
     screen.blit(img3, (0, 0))
 
-    player()
-    player2()
-    touch()
-    barrier()
-
     text = font.render("Hello", True, (10,200,100))
     screen.blit(text, (600,220))
 
@@ -131,4 +151,9 @@ while True:
     text3 = font2.render('Start Play!', True, (10, 220, 80))
     screen.blit(text3, (600, 350))
 
+    # en() Нужно доделать
+    player()
+    player2()
+    touch()
+    barrier()
     pygame.display.update()
