@@ -1,7 +1,6 @@
 import time
-
+import threading
 import pygame
-import random
 
 
 pygame.init()
@@ -46,6 +45,9 @@ y_e = 500
 x = 0
 y = 0
 
+x_b = x
+y_b = y
+
 lev_speed = 1.5
 en_speed = 0.5
 
@@ -72,7 +74,13 @@ def player():
     screen.blit(img, (x, y))
 
 
+flag = False
+
+
 def player2():
+    global flag
+    global x_b
+    global y_b
     global bul_timer
     global x_e
     global y_e
@@ -91,21 +99,33 @@ def player2():
 
     if keys_en[pygame.K_DOWN]:
         y_e += en_speed
+
     if keys_en[pygame.K_SPACE]:
-        screen.blit(bullet, (x, y+25))
+        bul()
+        flag = True
+    else:
+        flag = False
+
+    if flag == True:
+        x_b += 1
+        screen.blit(bullet, (x_b, y_b))
+    else:
+        y_b = y
+        x_b = x
+
     screen.blit(img4, (x_e, y_e))
 
 
-def en():  # Нужно доделать
+def bul():
+    global x_b
+    global y_b
     global y_e
-    global score
-    while True:
-        if score == 0:
-            y_e += 1
-            score += 1
-        if score >= 1000:
-            y_e -= 1
-            score -= 1
+    global x_e
+    if x_b-150 < x_e < x_b+175 and y_b-150 < y_e < y_b+50:
+        time.sleep(1)
+        exit()
+
+
 def touch():
     if x-150 < x_e < x+100 and y-150 < y_e < y+100:
         screen.blit(img5, (x-100, y-100))
@@ -132,6 +152,13 @@ def barrier():
         y += lev_speed
 
 
+threadPL = threading.Thread(target=player())
+threadPL2 = threading.Thread(target=player2())
+threadBUL = threading.Thread(target=bul())
+
+threadBUL.start()
+threadPL.start()
+threadPL2.start()
 pygame.mixer.Sound.play(fon_mus)
 
 while True:
@@ -151,7 +178,6 @@ while True:
     text3 = font2.render('Start Play!', True, (10, 220, 80))
     screen.blit(text3, (600, 350))
 
-    # en() Нужно доделать
     player()
     player2()
     touch()
