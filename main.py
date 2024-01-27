@@ -1,6 +1,7 @@
 import time
 import threading
 import pygame
+import random
 
 
 pygame.init()
@@ -13,7 +14,8 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 font2 = pygame.font.SysFont('Algerian', 70)
 font = pygame.font.SysFont("Algerian", 110)
 
-img = pygame.image.load('pct/levushka.jpg')
+imgL = pygame.image.load('pct/levushka1.png')
+img = pygame.image.load('pct/levushka.png')
 img2 = pygame.image.load('pct/Без названия.jpg')
 img3 = pygame.image.load('pct/4.jpg')
 img4 = pygame.image.load('pct/html.png')
@@ -29,11 +31,13 @@ kirp3 = kirp
 fon_mus = pygame.mixer.Sound('sounds/9a49e1c170bd8c1.mp3')
 
 img = pygame.transform.scale(img, (100, 100))
+imgL = pygame.transform.scale(imgL, (100, 100))
 img3 = pygame.transform.scale(img3, (10000, 10000))
 img4 = pygame.transform.scale(img4, (150, 150))
 img5 = pygame.transform.scale(img5, (300, 300))
-bullet = pygame.transform.scale(bullet, (175, 50))
+bullet = pygame.transform.scale(bullet, (50, 50))
 
+side = 1
 score = 0
 
 x_k = 100
@@ -52,32 +56,58 @@ lev_speed = 1.5
 en_speed = 0.5
 
 bul_timer = 0
+count = 0
+
+
+def spawn():
+    global count
+    global y
+    global x
+    global y_e
+    global x_e
+    global screen_height
+    global screen_width
+    count += 1
+    time.sleep(1)
+    x = random.randint(0, screen_width)
+    y = random.randint(0, screen_height)
+    x_e = random.randint(0, screen_width)
+    y_e = random.randint(0, screen_height)
+    if x_e == x and y_e == y:
+        spawn()
 
 
 def player():
+    global side
     global lev_speed
     global x
     global y
+    global side
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
         y -= lev_speed
 
     if keys[pygame.K_d]:
+        side = 0
         x += lev_speed
 
     if keys[pygame.K_a]:
+        side = 1
         x -= lev_speed
 
     if keys[pygame.K_s]:
         y += lev_speed
-
-    screen.blit(img, (x, y))
+    if side == 1:
+        screen.blit(img, (x, y))
+    if side == 0:
+        screen.blit(imgL, (x, y))
 
 
 flag = False
 
 
 def player2():
+    global side
     global flag
     global x_b
     global y_b
@@ -107,8 +137,14 @@ def player2():
         flag = False
 
     if flag == True:
-        x_b += 1
-        screen.blit(bullet, (x_b, y_b))
+        if side == 1:
+            if x_b < x:
+                x_b -= 1
+                screen.blit(bullet, (x_b, y_b))
+        if side == 0:
+            if x_b > x:
+                x_b += 1
+                screen.blit(bullet, (x_b, y_b))
     else:
         y_b = y
         x_b = x
@@ -121,16 +157,14 @@ def bul():
     global y_b
     global y_e
     global x_e
-    if x_b-150 < x_e < x_b+175 and y_b-150 < y_e < y_b+50:
-        time.sleep(1)
-        exit()
+    if x_b-150 < x_e < x_b+50 and y_b-150 < y_e < y_b+50:
+        spawn()
 
 
 def touch():
-    if x-150 < x_e < x+100 and y-150 < y_e < y+100:
+    if x-140 < x_e < x+90 and y-120 < y_e < y+70:
         screen.blit(img5, (x-100, y-100))
-        time.sleep(1)
-        exit()
+        spawn()
 
 
 def touch_kirp():
@@ -177,7 +211,8 @@ while True:
 
     text3 = font2.render('Start Play!', True, (10, 220, 80))
     screen.blit(text3, (600, 350))
-
+    # countTEXT = font2.render(count, True, (0, 220, 0))
+    # screen.blit(countTEXT, (700, 0))
     player()
     player2()
     touch()
